@@ -75,3 +75,4 @@ A WhatsApp-first catering storefront SaaS with structured enquiries, quotations,
 - [Data Model & Database Schema](docs/DATA_MODEL.md)
 - [Security & Tenant Isolation](docs/SECURITY.md)
 - [Architecture Decision Records](docs/DECISIONS.md)
+

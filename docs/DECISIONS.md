@@ -24,3 +24,4 @@
 - **Date:** 2026-11-02
 - **Decision:** Store SHA-256 hashes of customer quote access tokens in the database rather than plaintext tokens.
 - **Context:** Mitigates risk of token leakage in the event of database backup exposure while providing fast indexed lookups.
+

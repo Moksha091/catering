@@ -19,3 +19,4 @@
 - Update docs and migrations when architecture or schema changes.
 - Do not add dependencies unless they solve a real requirement.
 - Do not implement out-of-scope features without explicit approval.
+

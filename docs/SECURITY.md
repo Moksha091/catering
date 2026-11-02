@@ -38,3 +38,4 @@ EXISTS (
   `pending_confirmation` -> `confirmed` -> `in_progress` -> `completed`
   Any state -> `cancelled` (with required cancellation reason).
 - Once a quote is sent, its version is locked; edits generate an incremented version.
+

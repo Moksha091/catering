@@ -78,3 +78,4 @@ catering/
    - Even if an application check fails, PostgreSQL Row Level Security enforces that tenant data cannot be queried or updated across businesses.
 4. **Service-Role Key Protection:**
    - `SUPABASE_SERVICE_ROLE_KEY` is strictly server-only and excluded from any client bundles.
+

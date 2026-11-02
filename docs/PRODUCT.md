@@ -43,3 +43,4 @@ Information is scattered across photo galleries, PDFs, chat histories, and memor
 - Generate direct `wa.me/<number>?text=<encoded_text>` links.
 - Include enquiry reference, event date, guest count, and selected package in prefilled text.
 - No automated scraping or unofficial automation; manual click-to-chat ensures user trust and reliability.
+

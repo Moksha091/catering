@@ -35,3 +35,4 @@ export function getValidatedEnv() {
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "placeholder-anon-key",
   };
 }
+

@@ -25,3 +25,4 @@ describe("Currency & Financial Calculations", () => {
     expect(rupeesToPaise(0)).toBe(0);
   });
 });
+

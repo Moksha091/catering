@@ -187,3 +187,4 @@ All entity IDs are UUID primary keys (`gen_random_uuid()`). Currency amounts are
 - `entity_id UUID`
 - `metadata JSONB`
 - `created_at TIMESTAMPTZ DEFAULT NOW()`
+

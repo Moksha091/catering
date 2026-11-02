@@ -20,3 +20,4 @@ describe("Navbar Component", () => {
     expect(screen.getByText("Create Storefront")).toBeInTheDocument();
   });
 });
+

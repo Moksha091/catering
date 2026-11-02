@@ -24,3 +24,4 @@ export function formatPaiseToINR(paise: number | bigint): string {
 export function rupeesToPaise(rupees: number): number {
   return Math.round(rupees * 100);
 }
+
