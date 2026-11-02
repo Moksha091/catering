@@ -42,3 +42,4 @@ describe("Business Profile Validation Schema", () => {
     expect(result.success).toBe(false);
   });
 });
+

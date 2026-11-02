@@ -147,3 +147,4 @@ CREATE POLICY "Owners can update business"
         AND bm.status = 'active'
     )
   );
+

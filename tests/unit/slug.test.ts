@@ -32,3 +32,4 @@ describe("Slug Utilities & Validation", () => {
     expect(isValidSlug("sign-in")).toBe(false);
   });
 });
+

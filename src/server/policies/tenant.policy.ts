@@ -53,3 +53,4 @@ export async function assertBusinessMembership(
 
   return member as BusinessMember;
 }
+
