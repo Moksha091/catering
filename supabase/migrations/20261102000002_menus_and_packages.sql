@@ -212,3 +212,4 @@ CREATE POLICY "Public can view package items of published packages"
         AND b.status = 'active'
     )
   );
+

@@ -66,3 +66,4 @@ export const addPackageItemSchema = z.object({
 
 export type CreatePackageInput = z.infer<typeof createPackageSchema>;
 export type AddPackageItemInput = z.infer<typeof addPackageItemSchema>;
+
