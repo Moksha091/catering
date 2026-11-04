@@ -27,3 +27,4 @@ export function verifyQuoteToken(rawToken: string, storedHash: string): boolean 
     Buffer.from(storedHash, "utf-8")
   );
 }
+

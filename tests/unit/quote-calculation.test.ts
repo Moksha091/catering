@@ -59,3 +59,4 @@ describe("Authoritative Quote Financial Calculations", () => {
     expect(totals.depositPaise).toBe(100000); // Clamped to total
   });
 });
+

@@ -51,3 +51,4 @@ export const updateEnquiryNotesSchema = z.object({
 export type PublicEnquiryInput = z.infer<typeof publicEnquirySchema>;
 export type UpdateEnquiryStatusInput = z.infer<typeof updateEnquiryStatusSchema>;
 export type UpdateEnquiryNotesInput = z.infer<typeof updateEnquiryNotesSchema>;
+

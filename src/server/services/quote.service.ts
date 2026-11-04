@@ -296,3 +296,4 @@ export class QuoteService {
     return (data || []) as Quote[];
   }
 }
+

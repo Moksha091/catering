@@ -21,3 +21,4 @@ describe("Storefront Visibility & Draft Isolation", () => {
     expect(result).toBeNull();
   });
 });
+

@@ -237,3 +237,4 @@ CREATE POLICY "Tenant members can insert audit logs"
         AND bm.status = 'active'
     )
   );
+

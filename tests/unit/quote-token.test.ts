@@ -39,3 +39,4 @@ describe("Cryptographic Quote Tokens", () => {
     expect(verifyQuoteToken(tamperedToken, storedHash)).toBe(false);
   });
 });
+

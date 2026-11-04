@@ -132,3 +132,4 @@ VALUES
   ('a1111111-1111-1111-1111-111111111111', 'd4444444-4444-4444-4444-444444444444', 'Dessert & Live Ice Cream Counter', 'Gulab Jamun, Rabdi, and 2 Ice Cream flavours', 5),
   ('a1111111-1111-1111-1111-111111111111', 'd4444444-4444-4444-4444-444444444444', 'Serving Staff & Chaffing Vessels', 'Complete tableware, cloth napkins, and cleanup', 6)
 ON CONFLICT DO NOTHING;
+

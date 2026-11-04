@@ -25,3 +25,4 @@ describe("Sliding Window Rate Limiter", () => {
     expect(blocked.retryAfterSeconds).toBeGreaterThan(0);
   });
 });
+

@@ -200,3 +200,4 @@ export class BookingService {
     return updated as Booking;
   }
 }
+

@@ -23,3 +23,4 @@ describe("Booking State Transition Machine", () => {
     expect(isValidBookingTransition("in_progress", "pending_confirmation")).toBe(false);
   });
 });
+
