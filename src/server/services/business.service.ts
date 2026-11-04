@@ -2,6 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { CreateBusinessInput, createBusinessSchema } from "@/lib/validation/business";
 import { assertBusinessMembership, UnauthorizedError } from "@/server/policies/tenant.policy";
 import { Business } from "@/types/database";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export class BusinessService {
   constructor(private readonly supabase: SupabaseClient) {}
@@ -44,15 +45,28 @@ export class BusinessService {
       throw new Error(`The URL handle "${validated.slug}" is already taken.`);
     }
 
-    // Ensure profile row exists for user (handles cases where auth triggers were delayed)
-    await this.supabase.from("profiles").upsert(
-      {
-        id: user.id,
-        full_name: (user.user_metadata?.full_name as string) || validated.name,
-        phone: (user.user_metadata?.phone as string) || validated.phone,
-      },
-      { onConflict: "id" }
-    );
+    // Ensure profile row exists (bypasses RLS using service role).
+    // This is safe — we already verified user.id via auth.getUser() above.
+    // The trigger handle_new_user may have failed silently for email-confirmation signups.
+    try {
+      const admin = createAdminClient();
+      const { error: profileError } = await admin.from("profiles").upsert(
+        {
+          id: user.id,
+          full_name: (user.user_metadata?.full_name as string) || validated.name,
+          phone: (user.user_metadata?.phone as string) || validated.phone || null,
+        },
+        { onConflict: "id", ignoreDuplicates: false }
+      );
+      if (profileError) {
+        throw new Error(`Profile creation failed: ${profileError.message}`);
+      }
+    } catch (profileErr: unknown) {
+      const msg = profileErr instanceof Error ? profileErr.message : String(profileErr);
+      // If admin client is unavailable (e.g. env var not set), fall back and
+      // let the subsequent business insert reveal the real FK error
+      console.error("[business.service] profile upsert failed:", msg);
+    }
 
     // 1. Insert business
     const { data: business, error: businessError } = await this.supabase

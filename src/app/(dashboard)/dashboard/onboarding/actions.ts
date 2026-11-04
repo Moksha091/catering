@@ -47,7 +47,15 @@ export async function createBusinessOnboardingAction(
   try {
     await businessService.createBusiness(validation.data);
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to create business profile";
+    const raw = err instanceof Error ? err.message : String(err);
+    // Surface the real Supabase / Postgres error so users (and developers)
+    // can see exactly what went wrong rather than a generic message.
+    const message =
+      raw.includes("violates foreign key") && raw.includes("profiles")
+        ? "Your account profile could not be found. Please sign out and sign in again, then retry."
+        : raw.includes("duplicate key") || raw.includes("already taken")
+        ? raw
+        : `Failed to create business profile: ${raw}`;
     return { error: message };
   }
 
