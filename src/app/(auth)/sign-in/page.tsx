@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { UtensilsCrossed, AlertCircle, ArrowRight } from "lucide-react";
 import { useActionState } from "react";
 import { signInAction } from "@/app/(auth)/actions";
@@ -16,6 +17,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+function SignInAlerts() {
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
+  const notice = searchParams.get("notice");
+
+  if (error === "auth_callback_failed") {
+    return (
+      <div className="flex items-center gap-2 p-3 text-sm rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
+        <AlertCircle className="h-4 w-4 shrink-0" />
+        <span>The authentication link was invalid or has expired. Please sign in below.</span>
+      </div>
+    );
+  }
+
+  if (notice === "check_email") {
+    return (
+      <div className="flex items-center gap-2 p-3 text-sm rounded-lg bg-primary/10 text-primary border border-primary/20">
+        <AlertCircle className="h-4 w-4 shrink-0" />
+        <span>Please confirm your email address before signing in.</span>
+      </div>
+    );
+  }
+
+  return null;
+}
 
 export default function SignInPage() {
   const [state, formAction, isPending] = useActionState(signInAction, null);
@@ -35,6 +62,10 @@ export default function SignInPage() {
 
         <form action={formAction}>
           <CardContent className="space-y-4">
+            <React.Suspense fallback={null}>
+              <SignInAlerts />
+            </React.Suspense>
+
             {state?.error && (
               <div className="flex items-center gap-2 p-3 text-sm rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
                 <AlertCircle className="h-4 w-4 shrink-0" />

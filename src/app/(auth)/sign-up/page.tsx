@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { UtensilsCrossed, AlertCircle, ArrowRight } from "lucide-react";
+import { UtensilsCrossed, AlertCircle, ArrowRight, MailCheck } from "lucide-react";
 import { useActionState } from "react";
 import { signUpAction } from "@/app/(auth)/actions";
 import { Button } from "@/components/ui/button";
@@ -33,79 +33,99 @@ export default function SignUpPage() {
           </CardDescription>
         </CardHeader>
 
-        <form action={formAction}>
-          <CardContent className="space-y-4">
-            {state?.error && (
-              <div className="flex items-center gap-2 p-3 text-sm rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{state.error}</span>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Your Full Name</Label>
-              <Input
-                id="fullName"
-                name="fullName"
-                type="text"
-                placeholder="Ramesh Sharma"
-                required
-              />
+        {state?.success ? (
+          <CardContent className="space-y-4 text-center py-6">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">
+              <MailCheck className="h-7 w-7" />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="ramesh@sharmacaterers.com"
-                required
-                autoComplete="email"
-              />
+              <h3 className="font-bold text-lg">Check Your Email</h3>
+              <p className="text-sm text-muted-foreground">
+                {state.message ||
+                  "We have sent a verification link to your email address. Please click the link to confirm your account."}
+              </p>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone / WhatsApp Number (Optional)</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="+91 98765 43210"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Create Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="At least 6 characters"
-                required
-                minLength={6}
-                autoComplete="new-password"
-              />
+            <div className="pt-4 border-t">
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/sign-in">Go to Sign In</Link>
+              </Button>
             </div>
           </CardContent>
+        ) : (
+          <form action={formAction}>
+            <CardContent className="space-y-4">
+              {state?.error && (
+                <div className="flex items-center gap-2 p-3 text-sm rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{state.error}</span>
+                </div>
+              )}
 
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Creating Account..." : "Continue to Storefront Setup"}
-              {!isPending && <ArrowRight className="ml-2 h-4 w-4" />}
-            </Button>
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Your Full Name</Label>
+                <Input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  placeholder="Ramesh Sharma"
+                  required
+                />
+              </div>
 
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link
-                href="/sign-in"
-                className="text-primary font-medium hover:underline"
-              >
-                Sign In
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="ramesh@sharmacaterers.com"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone / WhatsApp Number (Optional)</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Create Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="At least 6 characters"
+                  required
+                  minLength={6}
+                  autoComplete="new-password"
+                />
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col gap-4">
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? "Creating Account..." : "Continue to Storefront Setup"}
+                {!isPending && <ArrowRight className="ml-2 h-4 w-4" />}
+              </Button>
+
+              <p className="text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link
+                  href="/sign-in"
+                  className="text-primary font-medium hover:underline"
+                >
+                  Sign In
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
+        )}
       </Card>
     </div>
   );
