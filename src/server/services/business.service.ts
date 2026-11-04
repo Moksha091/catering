@@ -67,7 +67,7 @@ export class BusinessService {
         city: validated.city,
         state: validated.state || null,
         address_text: validated.addressText || null,
-        published: false,
+        published: true,
         status: "active",
       })
       .select()

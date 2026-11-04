@@ -1,4 +1,5 @@
 import * as React from "react";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
@@ -78,6 +79,12 @@ export default async function PublicStorefrontPage({
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      {data.isPreview && (
+        <div className="bg-amber-500/10 border-b border-amber-500/20 py-2.5 px-4 text-center text-xs font-semibold text-amber-800 flex items-center justify-center gap-2">
+          <span>👀 <strong>Draft Preview Mode</strong>: You are viewing this page as the business owner. Turn on &quot;Publish Live&quot; in your dashboard to make it visible to clients.</span>
+        </div>
+      )}
+
       {/* Hero / Business Header */}
       <section className="bg-gradient-to-b from-primary/10 via-primary/5 to-background border-b py-10 md:py-14">
         <div className="container max-w-5xl">
@@ -134,6 +141,31 @@ export default async function PublicStorefrontPage({
       </section>
 
       <div className="container max-w-5xl py-10 space-y-12">
+        {/* Empty Menus & Packages State */}
+        {packages.length === 0 && menus.length === 0 && (
+          <Card className="border-dashed bg-muted/20 text-center py-12 px-4 space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <UtensilsCrossed className="h-7 w-7" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-xl font-bold">Curated Menus & Packages Coming Soon</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                We design personalized catering spreads for weddings, birthdays, and corporate events. Contact us directly on WhatsApp or submit a quote enquiry below to discuss custom dishes!
+              </p>
+            </div>
+            {data.isPreview && (
+              <div className="pt-2 flex justify-center gap-3">
+                <Button size="sm" asChild>
+                  <Link href="/dashboard/menus">Manage Menus</Link>
+                </Button>
+                <Button size="sm" variant="outline" asChild>
+                  <Link href="/dashboard/packages">Create Packages</Link>
+                </Button>
+              </div>
+            )}
+          </Card>
+        )}
+
         {/* Packages Section */}
         {packages.length > 0 && (
           <section id="packages" className="space-y-6">

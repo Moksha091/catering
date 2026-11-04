@@ -7,6 +7,7 @@ import {
   Copy,
   CheckCircle,
   FileText,
+  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { MenuService } from "@/server/services/menu.service";
@@ -15,6 +16,7 @@ import {
   createMenuAction,
   duplicateMenuAction,
   updateMenuStatusAction,
+  loadSampleMenuAction,
 } from "@/app/(dashboard)/dashboard/menus/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,14 +69,25 @@ export default async function MenusListPage() {
           </h2>
 
           {menus.length === 0 ? (
-            <Card className="border-dashed p-8 text-center space-y-3">
+            <Card className="border-dashed p-8 text-center space-y-4">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                 <Utensils className="h-6 w-6" />
               </div>
-              <h3 className="font-semibold text-base">No menus created yet</h3>
-              <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                Create your first menu on the right (e.g. &quot;Grand Wedding Buffet&quot; or &quot;South Indian Lunch&quot;) to start adding dishes.
-              </p>
+              <div className="space-y-1">
+                <h3 className="font-semibold text-base">No menus created yet</h3>
+                <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                  Create your first menu on the right, or load a sample Indian feast menu with 6 popular dishes and a banquet package in 1 click.
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <form action={loadSampleMenuAction}>
+                  <Button type="submit" variant="secondary" className="gap-2 shadow-sm">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span>Load Sample Menu & Dishes (1-Click)</span>
+                  </Button>
+                </form>
+              </div>
             </Card>
           ) : (
             <div className="space-y-4">

@@ -11,6 +11,7 @@ import {
 
 export interface PublicStorefrontDTO {
   business: Business;
+  isPreview?: boolean;
   menus: Array<
     Menu & {
       categories: Array<
@@ -41,17 +42,41 @@ export class StorefrontService {
   ): Promise<PublicStorefrontDTO | null> {
     const cleanSlug = slug.toLowerCase().trim();
 
-    // 1. Fetch published business
+    // 1. Fetch business
     const { data: business, error: bizError } = await this.supabase
       .from("businesses")
       .select("*")
       .eq("slug", cleanSlug)
-      .eq("published", true)
       .eq("status", "active")
       .single();
 
     if (bizError || !business) {
       return null;
+    }
+
+    let isPreview = false;
+    if (!business.published) {
+      const {
+        data: { user },
+      } = await this.supabase.auth.getUser();
+
+      if (!user) {
+        return null;
+      }
+
+      const { data: membership } = await this.supabase
+        .from("business_members")
+        .select("role")
+        .eq("business_id", business.id)
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (!membership) {
+        return null;
+      }
+
+      isPreview = true;
     }
 
     const businessId = business.id;
@@ -140,6 +165,7 @@ export class StorefrontService {
 
     return {
       business: business as Business,
+      isPreview,
       menus: assembledMenus,
       packages: assembledPackages,
       serviceAreas: (areasData || []) as ServiceArea[],

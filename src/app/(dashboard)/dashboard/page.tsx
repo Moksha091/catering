@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { BusinessService } from "@/server/services/business.service";
+import { togglePublishAction } from "@/app/(dashboard)/dashboard/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -66,6 +67,16 @@ export default async function DashboardOverviewPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <form action={togglePublishAction.bind(null, business.id, business.published)}>
+            <Button
+              type="submit"
+              variant={business.published ? "outline" : "default"}
+              size="sm"
+            >
+              {business.published ? "Switch to Draft" : "Publish Live"}
+            </Button>
+          </form>
+
           <Button variant="outline" size="sm" asChild>
             <Link href={`/c/${business.slug}`} target="_blank">
               <ExternalLink className="mr-2 h-4 w-4" />
