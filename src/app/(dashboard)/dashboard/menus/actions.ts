@@ -230,7 +230,7 @@ export async function loadSampleMenuAction(): Promise<void> {
       pricing_type: "per_person",
       price_paise: 75000,
       minimum_guests: 50,
-      status: "published",
+      is_published: true,
     })
     .select()
     .single();
@@ -238,26 +238,30 @@ export async function loadSampleMenuAction(): Promise<void> {
   if (pkg) {
     await supabase.from("package_items").insert([
       {
+        business_id: businessId,
         package_id: pkg.id,
-        item_id: item1.id,
+        menu_item_id: item1.id,
         item_name_snapshot: item1.name,
         display_order: 1,
       },
       {
+        business_id: businessId,
         package_id: pkg.id,
-        item_id: item2.id,
+        menu_item_id: item2.id,
         item_name_snapshot: item2.name,
         display_order: 2,
       },
       {
+        business_id: businessId,
         package_id: pkg.id,
-        item_id: item3.id,
+        menu_item_id: item3.id,
         item_name_snapshot: item3.name,
         display_order: 3,
       },
       {
+        business_id: businessId,
         package_id: pkg.id,
-        item_id: item4.id,
+        menu_item_id: item4.id,
         item_name_snapshot: item4.name,
         display_order: 4,
       },

@@ -13,3 +13,4 @@ export async function togglePublishAction(
   await businessService.setPublished(businessId, !currentStatus);
   revalidatePath("/dashboard");
 }
+

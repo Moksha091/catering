@@ -27,3 +27,4 @@ export async function GET(request: Request) {
   // If code exchange fails or no code is provided, redirect to sign-in with alert
   return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_failed`);
 }
+

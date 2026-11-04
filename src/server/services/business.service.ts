@@ -45,27 +45,36 @@ export class BusinessService {
       throw new Error(`The URL handle "${validated.slug}" is already taken.`);
     }
 
-    // Ensure profile row exists (bypasses RLS using service role).
-    // This is safe — we already verified user.id via auth.getUser() above.
-    // The trigger handle_new_user may have failed silently for email-confirmation signups.
-    try {
-      const admin = createAdminClient();
-      const { error: profileError } = await admin.from("profiles").upsert(
-        {
-          id: user.id,
-          full_name: (user.user_metadata?.full_name as string) || validated.name,
-          phone: (user.user_metadata?.phone as string) || validated.phone || null,
-        },
-        { onConflict: "id", ignoreDuplicates: false }
-      );
-      if (profileError) {
-        throw new Error(`Profile creation failed: ${profileError.message}`);
+    // Ensure profile row exists before inserting business (FK: businesses.owner_id -> profiles.id).
+    // Strategy 1: Call the `ensure_own_profile` RPC — SECURITY DEFINER, no service-role key needed.
+    // Strategy 2: Fall back to admin client (service-role) if RPC fails for any reason.
+    // This is safe — user.id is verified via auth.getUser() above; RPC enforces auth.uid() == user.id.
+    const profileName = (user.user_metadata?.full_name as string) || validated.name;
+    const profilePhone = (user.user_metadata?.phone as string) || validated.phone || null;
+
+    const { error: rpcError } = await this.supabase.rpc("ensure_own_profile", {
+      p_full_name: profileName,
+      p_phone: profilePhone,
+    });
+
+    if (rpcError) {
+      console.warn("[business.service] ensure_own_profile RPC failed:", rpcError.message, "— trying admin client fallback");
+      try {
+        const admin = createAdminClient();
+        const { error: profileError } = await admin.from("profiles").upsert(
+          { id: user.id, full_name: profileName, phone: profilePhone },
+          { onConflict: "id", ignoreDuplicates: false }
+        );
+        if (profileError) {
+          throw new Error(`Profile creation failed: ${profileError.message}`);
+        }
+      } catch (adminErr: unknown) {
+        const msg = adminErr instanceof Error ? adminErr.message : String(adminErr);
+        // If both paths fail, surface a clear error rather than a cryptic FK violation
+        throw new Error(
+          `Could not create your account profile. Please sign out and sign back in, then try again. (${msg})`
+        );
       }
-    } catch (profileErr: unknown) {
-      const msg = profileErr instanceof Error ? profileErr.message : String(profileErr);
-      // If admin client is unavailable (e.g. env var not set), fall back and
-      // let the subsequent business insert reveal the real FK error
-      console.error("[business.service] profile upsert failed:", msg);
     }
 
     // 1. Insert business
