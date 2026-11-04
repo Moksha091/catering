@@ -52,7 +52,7 @@ export async function createBusinessOnboardingAction(
     // can see exactly what went wrong rather than a generic message.
     const message =
       raw.includes("violates foreign key") && raw.includes("profiles")
-        ? "Your account profile could not be found. Please sign out and sign in again, then retry."
+        ? "Your account profile is missing in the database. Please run the SQL migration in Supabase SQL Editor to link your user, then click Save & Continue."
         : raw.includes("duplicate key") || raw.includes("already taken")
         ? raw
         : `Failed to create business profile: ${raw}`;

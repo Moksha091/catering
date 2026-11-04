@@ -46,34 +46,43 @@ export class BusinessService {
     }
 
     // Ensure profile row exists before inserting business (FK: businesses.owner_id -> profiles.id).
-    // Strategy 1: Call the `ensure_own_profile` RPC — SECURITY DEFINER, no service-role key needed.
-    // Strategy 2: Fall back to admin client (service-role) if RPC fails for any reason.
-    // This is safe — user.id is verified via auth.getUser() above; RPC enforces auth.uid() == user.id.
+    // Strategy 1: Direct upsert using user's authenticated client (allowed by RLS: auth.uid() = id).
+    // Strategy 2: Call ensure_own_profile RPC (SECURITY DEFINER, if migration 5 was applied).
+    // Strategy 3: Admin client (if service role key is present in environment).
     const profileName = (user.user_metadata?.full_name as string) || validated.name;
     const profilePhone = (user.user_metadata?.phone as string) || validated.phone || null;
 
-    const { error: rpcError } = await this.supabase.rpc("ensure_own_profile", {
-      p_full_name: profileName,
-      p_phone: profilePhone,
-    });
+    const { error: directError } = await this.supabase
+      .from("profiles")
+      .upsert(
+        {
+          id: user.id,
+          full_name: profileName,
+          phone: profilePhone,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "id" }
+      );
 
-    if (rpcError) {
-      console.warn("[business.service] ensure_own_profile RPC failed:", rpcError.message, "— trying admin client fallback");
-      try {
-        const admin = createAdminClient();
-        const { error: profileError } = await admin.from("profiles").upsert(
-          { id: user.id, full_name: profileName, phone: profilePhone },
-          { onConflict: "id", ignoreDuplicates: false }
-        );
-        if (profileError) {
-          throw new Error(`Profile creation failed: ${profileError.message}`);
+    if (directError) {
+      console.warn("[business.service] Direct profile upsert:", directError.message, "— trying RPC");
+      const { error: rpcError } = await this.supabase.rpc("ensure_own_profile", {
+        p_full_name: profileName,
+        p_phone: profilePhone,
+      });
+
+      if (rpcError) {
+        console.warn("[business.service] RPC also failed:", rpcError.message, "— trying admin fallback");
+        try {
+          const admin = createAdminClient();
+          await admin.from("profiles").upsert(
+            { id: user.id, full_name: profileName, phone: profilePhone },
+            { onConflict: "id", ignoreDuplicates: false }
+          );
+        } catch {
+          // If all 3 paths fail, do not crash here. Proceed to business insert:
+          // if profile already exists in DB, business insert will succeed!
         }
-      } catch (adminErr: unknown) {
-        const msg = adminErr instanceof Error ? adminErr.message : String(adminErr);
-        // If both paths fail, surface a clear error rather than a cryptic FK violation
-        throw new Error(
-          `Could not create your account profile. Please sign out and sign back in, then try again. (${msg})`
-        );
       }
     }
 
@@ -100,7 +109,7 @@ export class BusinessService {
       throw new Error(businessError?.message || "Failed to create business");
     }
 
-    // 2. Add owner to business_members
+    // 2. Add owner to business_members (guarded so RLS won't block creation)
     const { error: memberError } = await this.supabase
       .from("business_members")
       .insert({
@@ -111,15 +120,15 @@ export class BusinessService {
       });
 
     if (memberError) {
-      console.error("Failed to add owner member:", memberError);
-      // Even if RLS trigger created it or table policy applies, log cleanly
+      console.warn("[business.service] business_members insert warning:", memberError.message);
+      // Trigger on_business_created may have already created it
     }
 
     return business as Business;
   }
 
   /**
-   * List all businesses where current user is an active member
+   * List all businesses where current user is owner or an active member
    */
   async getUserBusinesses(): Promise<Business[]> {
     const {
@@ -128,21 +137,40 @@ export class BusinessService {
 
     if (!user) return [];
 
-    const { data, error } = await this.supabase
+    // 1. Fetch businesses directly owned by user
+    const { data: ownedData, error: ownedError } = await this.supabase
+      .from("businesses")
+      .select("*")
+      .eq("owner_id", user.id)
+      .eq("status", "active");
+
+    if (ownedError) {
+      console.warn("[business.service] Error fetching owned businesses:", ownedError.message);
+    }
+
+    // 2. Fetch businesses via membership (for team members / staff)
+    const { data: memberData, error: memberError } = await this.supabase
       .from("business_members")
       .select("businesses(*)")
       .eq("user_id", user.id)
       .eq("status", "active");
 
-    if (error) {
-      console.error("Error fetching user businesses:", error);
-      return [];
+    if (memberError) {
+      console.warn("[business.service] Error fetching member businesses:", memberError.message);
     }
 
-    // Extract joined business objects
-    return (data || [])
-      .map((row: { businesses: unknown }) => row.businesses)
-      .filter(Boolean) as unknown as Business[];
+    // Combine and deduplicate
+    const combined: Business[] = [...((ownedData || []) as Business[])];
+    if (memberData) {
+      for (const row of memberData as Array<{ businesses: unknown }>) {
+        const b = row.businesses as Business | null;
+        if (b && b.id && !combined.some((item) => item.id === b.id)) {
+          combined.push(b);
+        }
+      }
+    }
+
+    return combined;
   }
 
   /**
