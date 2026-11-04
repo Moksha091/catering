@@ -44,6 +44,16 @@ export class BusinessService {
       throw new Error(`The URL handle "${validated.slug}" is already taken.`);
     }
 
+    // Ensure profile row exists for user (handles cases where auth triggers were delayed)
+    await this.supabase.from("profiles").upsert(
+      {
+        id: user.id,
+        full_name: (user.user_metadata?.full_name as string) || validated.name,
+        phone: (user.user_metadata?.phone as string) || validated.phone,
+      },
+      { onConflict: "id" }
+    );
+
     // 1. Insert business
     const { data: business, error: businessError } = await this.supabase
       .from("businesses")

@@ -14,14 +14,14 @@ export async function createBusinessOnboardingAction(
   _prevState: OnboardingState | null,
   formData: FormData
 ): Promise<OnboardingState> {
-  const name = formData.get("name") as string;
-  const slug = formData.get("slug") as string;
-  const description = formData.get("description") as string;
-  const phone = formData.get("phone") as string;
-  const whatsappPhone = formData.get("whatsappPhone") as string;
-  const city = formData.get("city") as string;
-  const state = formData.get("state") as string;
-  const addressText = formData.get("addressText") as string;
+  const name = ((formData.get("name") as string) || "").trim();
+  const slug = ((formData.get("slug") as string) || "").trim();
+  const description = ((formData.get("description") as string) || "").trim();
+  const phone = ((formData.get("phone") as string) || "").trim();
+  const whatsappPhone = ((formData.get("whatsappPhone") as string) || "").trim();
+  const city = ((formData.get("city") as string) || "").trim();
+  const state = ((formData.get("state") as string) || "").trim();
+  const addressText = ((formData.get("addressText") as string) || "").trim();
 
   const validation = createBusinessSchema.safeParse({
     name,

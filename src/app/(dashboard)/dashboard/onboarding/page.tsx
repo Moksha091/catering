@@ -57,9 +57,22 @@ export default function BusinessOnboardingPage() {
         <form action={formAction}>
           <CardContent className="space-y-6">
             {state?.error && (
-              <div className="flex items-center gap-2 p-3 text-sm rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{state.error}</span>
+              <div className="p-4 text-sm rounded-lg bg-destructive/10 text-destructive border border-destructive/20 space-y-2">
+                <div className="flex items-center gap-2 font-semibold">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{state.error}</span>
+                </div>
+                {state?.fieldErrors && Object.keys(state.fieldErrors).length > 0 && (
+                  <ul className="list-disc list-inside text-xs space-y-1 pl-1">
+                    {Object.entries(state.fieldErrors).map(([field, msgs]) =>
+                      msgs?.map((msg, i) => (
+                        <li key={`${field}-${i}`}>
+                          <strong className="capitalize">{field.replace(/([A-Z])/g, " $1")}:</strong> {msg}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
               </div>
             )}
 
@@ -116,7 +129,7 @@ export default function BusinessOnboardingPage() {
                   id="phone"
                   name="phone"
                   type="tel"
-                  placeholder="+91 98765 43210"
+                  placeholder="e.g. 9876543210"
                   required
                 />
                 {state?.fieldErrors?.phone && (
@@ -132,7 +145,7 @@ export default function BusinessOnboardingPage() {
                   id="whatsappPhone"
                   name="whatsappPhone"
                   type="tel"
-                  placeholder="+91 98765 43210"
+                  placeholder="e.g. 9876543210"
                   required
                 />
                 {state?.fieldErrors?.whatsappPhone && (
@@ -168,7 +181,27 @@ export default function BusinessOnboardingPage() {
                   type="text"
                   placeholder="e.g. Telangana"
                 />
+                {state?.fieldErrors?.state && (
+                  <p className="text-xs text-destructive">
+                    {state.fieldErrors.state[0]}
+                  </p>
+                )}
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="addressText">Kitchen / Street Address (Optional)</Label>
+              <Input
+                id="addressText"
+                name="addressText"
+                type="text"
+                placeholder="e.g. Plot 42, Food Tech Park, Madhapur"
+              />
+              {state?.fieldErrors?.addressText && (
+                <p className="text-xs text-destructive">
+                  {state.fieldErrors.addressText[0]}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">

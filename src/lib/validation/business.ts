@@ -68,20 +68,20 @@ export const createBusinessSchema = z.object({
       (slug) => !RESERVED_SLUGS.includes(slug as (typeof RESERVED_SLUGS)[number]),
       "This web address is reserved. Please choose another one."
     ),
-  description: z.string().trim().max(1000).optional().or(z.literal("")),
+  description: z.string().trim().max(1000).optional().nullable().or(z.literal("")),
   phone: z
     .string()
     .trim()
     .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number cannot exceed 15 digits"),
+    .max(20, "Phone number cannot exceed 20 digits"),
   whatsappPhone: z
     .string()
     .trim()
     .min(10, "WhatsApp number must be at least 10 digits")
-    .max(15, "WhatsApp number cannot exceed 15 digits"),
+    .max(20, "WhatsApp number cannot exceed 20 digits"),
   city: z.string().trim().min(2, "City is required"),
-  state: z.string().trim().optional().or(z.literal("")),
-  addressText: z.string().trim().max(255).optional().or(z.literal("")),
+  state: z.string().trim().optional().nullable().or(z.literal("")),
+  addressText: z.string().trim().max(255).optional().nullable().or(z.literal("")),
 });
 
 export type CreateBusinessInput = z.infer<typeof createBusinessSchema>;
